@@ -1,0 +1,56 @@
+# Use the official Node.js 14 (LTS) image as a base
+FROM node:14-buster-slim
+
+# Label the image
+LABEL maintainer="Your Name <your.email@example.com>"
+LABEL description="Node-RED with Azure CLI on Raspberry Pi 4"
+
+# Avoid prompts from apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
+    python3-pip \
+    python3-setuptools \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node-RED
+RUN npm install -g --unsafe-perm node-red
+
+# Install Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+
+# Install PowerShell Core
+RUN curl -L https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/powershell-7.1.3-linux-arm64.tar.gz -o /tmp/powershell.tar.gz \
+    && mkdir -p /opt/microsoft/powershell/7 \
+    && tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 \
+    && chmod +x /opt/microsoft/powershell/7/pwsh \
+    && ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh
+
+# Download kubectl, make it executable and move it to /usr/local/bin
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl" \
+    && chmod +x kubectl \
+    && mv kubectl /usr/local/bin/
+
+# Download Helm, unpack it and move the binary to /usr/local/bin
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
+    && chmod 700 get_helm.sh \
+    && ./get_helm.sh
+
+
+# Expose the Node-RED port
+EXPOSE 1880
+
+# Define volume for Node-RED user data
+VOLUME ["/data"]
+
+# Start Node-RED with custom userDir
+CMD ["node-red", "--userDir", "/data"]
