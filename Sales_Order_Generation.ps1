@@ -1,5 +1,5 @@
 . "$PSScriptRoot/Funtions/General.ps1"
-. "$PSScriptRoot/LocalTesting/creds.ps1"
+. "$PSScriptRoot/LocalTesting/SQL_Creds.ps1"
 write-host 
 # Define database connection parameters
 #$serverName = "win-sql01"
