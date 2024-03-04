@@ -1,5 +1,5 @@
 # Define the path to your script
-$scriptPath = "/Users/andybarber/Documents/Repos/ADW_Extras/Sales_Order_Generation.ps1"
+$scriptPath = "$PSScriptRoot/Sales_Order_Generation.ps1"
 
 for ($i = 0; $i -lt 2; $i++) {
     Start-Job -ScriptBlock {
