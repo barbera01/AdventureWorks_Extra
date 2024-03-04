@@ -139,3 +139,49 @@ $shippingComments = @(
 function Get-ShippingComment {
     return Get-Random -InputObject $shippingComments
 }
+
+
+
+
+function Convert-HEXtoImage {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$filePath,
+        [Parameter(Mandatory=$true)]
+        [string]$imageHEX
+    )
+    
+ 
+    $hexString = $imageHEX.TrimStart('0x')
+
+    # Convert the hex string to bytes
+    $bytes = [byte[]]::new($hexString.Length / 2)
+    for ($i = 0; $i -lt $bytes.Length; $i++) {
+        $bytes[$i] = [convert]::ToByte($hexString.Substring($i * 2, 2), 16)
+    }
+
+
+    $outputFilePath = "$filePath"
+
+
+    [System.IO.File]::WriteAllBytes($outputFilePath, $bytes)
+
+}
+
+function Convert-ImageToHex {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$filePath
+    )
+
+    # Read the bytes from the image file
+    $bytes = [System.IO.File]::ReadAllBytes($filePath)
+
+    # Convert the bytes to a hexadecimal string
+    $hexString = [BitConverter]::ToString($bytes) -replace '-'
+
+
+    $hexString = "0x" + $hexString
+
+    return $hexString
+}
